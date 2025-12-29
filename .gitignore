@@ -39,6 +39,7 @@ build/
 
 # Claude IDE
 .claude/
+.mcp.json
 
 # Database
 backend/storage/*.db
