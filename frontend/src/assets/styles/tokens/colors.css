@@ -1,0 +1,94 @@
+/**
+ * Color Design Tokens
+ * Single source of truth for all colors in the application
+ *
+ * Naming convention: --color-{category}-{variant}
+ * Categories: bg, text, border, accent, shadow
+ */
+
+:root {
+  /* ========================================
+     Base Palette (Light Theme)
+     ======================================== */
+
+  /* Background colors */
+  --color-bg-primary: #fafafa;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f5f5f5;
+  --color-bg-elevated: #ffffff;
+
+  /* Text colors */
+  --color-text-primary: #000000;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  --color-text-inverse: #ffffff;
+
+  /* Border colors */
+  --color-border-default: #e8e8e8;
+  --color-border-focus: #4A9EFF;
+  --color-border-hover: #d0d0d0;
+
+  /* Accent colors */
+  --color-accent-primary: #4A9EFF;
+  --color-accent-primary-hover: #3d8ae5;
+  --color-accent-success: #10b981;
+  --color-accent-warning: #f59e0b;
+  --color-accent-error: #ef4444;
+
+  /* Interactive states */
+  --color-hover-overlay: rgba(0, 0, 0, 0.05);
+
+  /* Shadows (as colors for composability) */
+  --color-shadow-base: rgba(0, 0, 0, 0.08);
+  --color-shadow-elevated: rgba(0, 0, 0, 0.12);
+
+  /* Component-specific tokens */
+  --color-logo-bg: #000000;
+  --color-logo-text: #ffffff;
+  --color-input-bg: #ffffff;
+  --color-card-bg: #ffffff;
+  --color-tab-bg: #f0f0f0;
+  --color-tab-active-bg: #ffffff;
+}
+
+/* ========================================
+   Dark Theme Overrides
+   ======================================== */
+
+[data-theme="dark"] {
+  /* Background colors */
+  --color-bg-primary: #0f0f0f;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-tertiary: #252525;
+  --color-bg-elevated: #1a1a1a;
+
+  /* Text colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #666666;
+  --color-text-inverse: #000000;
+
+  /* Border colors */
+  --color-border-default: #333333;
+  --color-border-focus: #4A9EFF;
+  --color-border-hover: #444444;
+
+  /* Accent colors (same in dark mode) */
+  --color-accent-primary: #4A9EFF;
+  --color-accent-primary-hover: #5babff;
+
+  /* Interactive states */
+  --color-hover-overlay: rgba(255, 255, 255, 0.08);
+
+  /* Shadows */
+  --color-shadow-base: rgba(0, 0, 0, 0.3);
+  --color-shadow-elevated: rgba(0, 0, 0, 0.4);
+
+  /* Component-specific tokens */
+  --color-logo-bg: #ffffff;
+  --color-logo-text: #000000;
+  --color-input-bg: #1a1a1a;
+  --color-card-bg: #1a1a1a;
+  --color-tab-bg: #252525;
+  --color-tab-active-bg: #333333;
+}

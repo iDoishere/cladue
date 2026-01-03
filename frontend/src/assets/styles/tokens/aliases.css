@@ -1,0 +1,44 @@
+/**
+ * Semantic Token Aliases
+ * Maps design tokens to semantic names for backwards compatibility
+ * and easier component styling
+ *
+ * These are the tokens that components should use
+ */
+
+:root {
+  /* Background aliases */
+  --bg-primary: var(--color-bg-primary);
+  --bg-secondary: var(--color-bg-secondary);
+  --bg-tertiary: var(--color-bg-tertiary);
+  --bg-gradient: var(--gradient-surface-light);
+
+  /* Text aliases */
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-tertiary: var(--color-text-tertiary);
+
+  /* Border aliases */
+  --border-color: var(--color-border-default);
+  --border-focus: var(--color-border-focus);
+
+  /* Accent aliases */
+  --accent-color: var(--color-accent-primary);
+  --accent-hover: var(--color-accent-primary-hover);
+
+  /* Interactive aliases */
+  --hover-bg: var(--color-hover-overlay);
+
+  /* Shadow aliases */
+  --shadow-color: var(--color-shadow-base);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-lg: var(--shadow-lg);
+
+  /* Component aliases */
+  --logo-bg: var(--color-logo-bg);
+  --logo-text: var(--color-logo-text);
+  --input-bg: var(--color-input-bg);
+  --card-bg: var(--color-card-bg);
+  --tab-bg: var(--color-tab-bg);
+  --tab-active-bg: var(--color-tab-active-bg);
+}

@@ -57,11 +57,12 @@ const tags = [
 }
 
 .profile-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: var(--card-bg);
   border-radius: 32px;
   padding: 50px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
   backdrop-filter: blur(10px);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .profile-header {
@@ -83,7 +84,7 @@ const tags = [
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .emoji {
@@ -99,14 +100,14 @@ const tags = [
 .profile-name {
   font-size: 36px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
 }
 
 .profile-meta {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -117,14 +118,14 @@ const tags = [
 .greeting-text {
   font-size: 20px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0 0 12px 0;
 }
 
 .intro-text {
   font-size: 15px;
   line-height: 1.7;
-  color: #374151;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -137,12 +138,12 @@ const tags = [
 
 .tag {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border: 1.5px solid rgba(14, 165, 233, 0.2);
+  background: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
   border-radius: 24px;
   font-size: 13px;
   font-weight: 600;
-  color: #0c4a6e;
+  color: var(--accent-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -160,11 +161,11 @@ const tags = [
 }
 
 .tag:hover {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
   color: white;
-  border-color: #0ea5e9;
+  border-color: var(--accent-color);
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 10px 25px rgba(74, 158, 255, 0.3);
 }
 
 .tag:hover::before {
@@ -173,13 +174,13 @@ const tags = [
 
 .bio-section {
   padding-top: 30px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--border-color);
 }
 
 .bio-text {
   font-size: 15px;
   line-height: 1.8;
-  color: #374151;
+  color: var(--text-secondary);
   margin: 0 0 20px 0;
 }
 
@@ -193,17 +194,17 @@ const tags = [
 }
 
 .profile-view::-webkit-scrollbar-track {
-  background: #f8f9fa;
+  background: var(--bg-tertiary);
   border-radius: 4px;
 }
 
 .profile-view::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 .profile-view::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--text-tertiary);
 }
 
 @keyframes fadeIn {

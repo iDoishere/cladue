@@ -24,7 +24,7 @@ const tabs = [
       :class="['tab', { active: activeTab === tab.name }]"
       @click="emit('tabClick', tab.name)"
     >
-      <div class="tab-icon" :style="{ backgroundColor: activeTab === tab.name ? tab.color : '#f3f4f6' }">
+      <div class="tab-icon" :style="{ backgroundColor: activeTab === tab.name ? tab.color : 'var(--tab-bg)' }">
         <span class="icon">{{ tab.icon }}</span>
       </div>
       <span class="tab-label">{{ tab.name }}</span>
@@ -73,7 +73,7 @@ const tabs = [
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .icon {
@@ -83,17 +83,17 @@ const tabs = [
 .tab-label {
   font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-secondary);
   transition: color 0.2s;
 }
 
 .tab.active .tab-label {
-  color: #111827;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .tab:hover .tab-label {
-  color: #374151;
+  color: var(--text-primary);
 }
 
 @media (max-width: 600px) {

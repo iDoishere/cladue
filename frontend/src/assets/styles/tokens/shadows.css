@@ -1,0 +1,26 @@
+/**
+ * Shadow Design Tokens
+ * Elevation and shadow definitions
+ */
+
+:root {
+  /* Shadow definitions using color tokens */
+  --shadow-sm: 0 2px 8px var(--color-shadow-base);
+  --shadow-md: 0 4px 12px var(--color-shadow-base);
+  --shadow-lg: 0 10px 30px var(--color-shadow-base);
+  --shadow-xl: 0 20px 60px var(--color-shadow-elevated);
+
+  /* Inset shadows */
+  --shadow-inset-sm: inset 0 2px 6px var(--color-shadow-base);
+
+  /* Focus ring */
+  --shadow-focus-ring: 0 0 0 3px rgba(74, 158, 255, 0.1);
+
+  /* Gradient backgrounds */
+  --gradient-surface-light: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-primary-hover) 100%);
+}
+
+[data-theme="dark"] {
+  --gradient-surface-light: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+}

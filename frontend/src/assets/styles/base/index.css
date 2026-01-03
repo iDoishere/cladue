@@ -1,0 +1,7 @@
+/**
+ * Base Styles Index
+ * Import reset and global styles
+ */
+
+@import './reset.css';
+@import './global.css';

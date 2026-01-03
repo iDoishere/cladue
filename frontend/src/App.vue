@@ -6,6 +6,7 @@ import ProfileView from './components/chat/ProfileView.vue'
 import ProjectsView from './components/chat/ProjectsView.vue'
 import SkillsView from './components/chat/SkillsView.vue'
 import ContactView from './components/chat/ContactView.vue'
+import ThemeToggle from './components/ThemeToggle.vue'
 import { chatWithAI } from './services/ai.service'
 
 interface Message {
@@ -101,8 +102,11 @@ async function handleSendMessage() {
 <template>
   <div class="app">
     <div class="main-content">
-      <!-- Logo with animation -->
-      <div class="logo animate-fade-in" style="animation-delay: 0.1s">IC</div>
+      <!-- Header with Logo and Theme Toggle -->
+      <div class="header animate-fade-in" style="animation-delay: 0.1s">
+        <div class="logo">IC</div>
+        <ThemeToggle />
+      </div>
 
       <!-- Title - Hide when any content is visible -->
       <div v-if="!showChat && !showProfile && !showProjects && !showSkills && !showContact" class="title-section animate-fade-in" style="animation-delay: 0.2s">
@@ -169,12 +173,13 @@ async function handleSendMessage() {
 <style scoped>
 .app {
   height: 100vh;
-  background: #fafafa;
+  background: var(--bg-primary);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
 .main-content {
@@ -188,17 +193,26 @@ async function handleSendMessage() {
   overflow: hidden;
 }
 
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
 .logo {
   width: 40px;
   height: 40px;
-  background: #000;
-  color: white;
+  background: var(--logo-bg);
+  color: var(--logo-text);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .title-section {
@@ -208,7 +222,7 @@ async function handleSendMessage() {
 
 .greeting {
   font-size: 20px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8px;
   font-weight: 400;
 }
@@ -216,7 +230,7 @@ async function handleSendMessage() {
 .main-title {
   font-size: 72px;
   font-weight: 900;
-  color: #000;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -230,11 +244,12 @@ async function handleSendMessage() {
   width: 280px;
   height: 280px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  background: var(--bg-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .avatar-placeholder {
@@ -253,16 +268,21 @@ async function handleSendMessage() {
 .chat-input {
   flex: 1;
   padding: 16px 24px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 50px;
   font-size: 15px;
   outline: none;
   transition: all 0.2s;
-  background: white;
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.chat-input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .chat-input:focus {
-  border-color: #4A9EFF;
+  border-color: var(--border-focus);
   box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
 }
 
@@ -270,7 +290,7 @@ async function handleSendMessage() {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #4A9EFF;
+  background: var(--accent-color);
   color: white;
   border: none;
   cursor: pointer;
@@ -282,7 +302,7 @@ async function handleSendMessage() {
 }
 
 .send-button:hover {
-  background: #3d8ae5;
+  background: var(--accent-hover);
   transform: scale(1.05);
 }
 

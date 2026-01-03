@@ -51,12 +51,13 @@ watch(() => props.messages.length, async () => {
   width: 100%;
   max-width: 1100px;
   height: 100%;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: var(--card-bg);
   border-radius: 32px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
   padding: 50px;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .chat-container {
@@ -100,13 +101,14 @@ watch(() => props.messages.length, async () => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  background: var(--bg-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s ease;
 }
 
 .message-bubble {
@@ -114,20 +116,21 @@ watch(() => props.messages.length, async () => {
   border-radius: 20px;
   line-height: 1.6;
   font-size: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .message.user .message-bubble {
-  background: linear-gradient(135deg, #4A9EFF 0%, #3d8ae5 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
   color: white;
   border-bottom-right-radius: 6px;
 }
 
 .message.assistant .message-bubble {
-  background: #f8f9fa;
-  color: #1f2937;
-  border: 1px solid #e9ecef;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-bottom-left-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Message animation */
@@ -153,17 +156,18 @@ watch(() => props.messages.length, async () => {
 }
 
 .chat-container::-webkit-scrollbar-track {
-  background: #f8f9fa;
+  background: var(--bg-tertiary);
   border-radius: 4px;
 }
 
 .chat-container::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--border-color);
   border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
 .chat-container::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--text-tertiary);
 }
 
 @media (max-width: 768px) {

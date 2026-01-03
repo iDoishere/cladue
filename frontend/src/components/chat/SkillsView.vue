@@ -88,19 +88,17 @@ import { skillsByCategory } from '../../data/skills'
 }
 
 .skills-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: var(--card-bg);
   border-radius: 32px;
   padding: 50px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .section-title {
   font-size: 38px;
   font-weight: 900;
-  background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   margin: 0 0 40px 0;
   text-align: center;
   letter-spacing: -0.02em;
@@ -121,7 +119,7 @@ import { skillsByCategory } from '../../data/skills'
 .category-title {
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
@@ -153,23 +151,24 @@ import { skillsByCategory } from '../../data/skills'
 .skill-name {
   font-size: 15px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .skill-percentage {
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .progress-bar {
   width: 100%;
   height: 12px;
-  background: linear-gradient(to right, #f1f5f9, #e2e8f0);
+  background: var(--bg-tertiary);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 2px 6px var(--shadow-color);
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
 .progress-fill {
@@ -224,17 +223,17 @@ import { skillsByCategory } from '../../data/skills'
 }
 
 .skills-view::-webkit-scrollbar-track {
-  background: #f8f9fa;
+  background: var(--bg-tertiary);
   border-radius: 4px;
 }
 
 .skills-view::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 .skills-view::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--text-tertiary);
 }
 
 @keyframes fadeIn {

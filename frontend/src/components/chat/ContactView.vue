@@ -68,13 +68,14 @@
 }
 
 .contact-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: var(--card-bg);
   border-radius: 32px;
   padding: 50px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 40px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .contact-header {
@@ -87,21 +88,21 @@
 
 .contact-button {
   padding: 16px 48px;
-  background: linear-gradient(135deg, #000000 0%, #1f2937 100%);
-  color: white;
+  background: var(--logo-bg);
+  color: var(--logo-text);
   border: none;
   border-radius: 50px;
   font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .contact-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  box-shadow: 0 15px 40px var(--shadow-color);
+  opacity: 0.9;
 }
 
 .contact-button:active {
@@ -110,7 +111,7 @@
 
 .reach-text {
   font-size: 18px;
-  color: #374151;
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 500;
 }
@@ -129,59 +130,60 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+  background: var(--bg-tertiary);
   border-radius: 16px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-color);
   transition: all 0.3s;
 }
 
 .contact-item:hover {
-  border-color: #3b82f6;
+  border-color: var(--accent-color);
   transform: translateX(8px);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 8px 24px rgba(74, 158, 255, 0.15);
 }
 
 .contact-label {
   font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-primary);
   min-width: 100px;
 }
 
 .contact-link {
   font-size: 16px;
-  color: #3b82f6;
+  color: var(--accent-color);
   text-decoration: none;
   transition: all 0.2s;
   font-weight: 500;
 }
 
 .contact-link:hover {
-  color: #2563eb;
+  color: var(--accent-hover);
   text-decoration: underline;
 }
 
 .contact-message {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-left: 4px solid #3b82f6;
+  background: var(--bg-tertiary);
+  border-left: 4px solid var(--accent-color);
   padding: 30px;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition: background-color 0.3s ease;
 }
 
 .message-text {
   font-size: 20px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .message-details {
   font-size: 16px;
   line-height: 1.7;
-  color: #475569;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -231,17 +233,17 @@
 }
 
 .contact-view::-webkit-scrollbar-track {
-  background: #f8f9fa;
+  background: var(--bg-tertiary);
   border-radius: 4px;
 }
 
 .contact-view::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 .contact-view::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--text-tertiary);
 }
 
 @keyframes fadeIn {
