@@ -59,36 +59,58 @@ const ariaLabel = computed(() =>
 
 <style scoped>
 .theme-toggle {
-  --toggle-size: 44px;
+  --toggle-size: 50px;
 
   position: relative;
   width: var(--toggle-size);
   height: var(--toggle-size);
   padding: 0;
-  background: transparent;
-  border: none;
+  background: linear-gradient(135deg, rgba(255, 200, 50, 0.15) 0%, rgba(255, 150, 0, 0.15) 100%);
+  border: 1px solid rgba(255, 200, 50, 0.3);
   border-radius: 50%;
   cursor: pointer;
-  color: var(--text-primary);
-  transition: background-color 0.2s ease;
+  color: #ffd93d;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow:
+    0 0 15px rgba(255, 200, 50, 0.3),
+    0 0 30px rgba(255, 150, 0, 0.15);
+}
+
+.theme-toggle--dark {
+  background: linear-gradient(135deg, rgba(100, 150, 255, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #a29bfe;
+  box-shadow:
+    0 0 15px rgba(139, 92, 246, 0.3),
+    0 0 30px rgba(100, 150, 255, 0.15);
 }
 
 .theme-toggle:hover {
-  background: var(--hover-bg);
+  transform: scale(1.1);
+  box-shadow:
+    0 0 25px rgba(255, 200, 50, 0.5),
+    0 0 50px rgba(255, 150, 0, 0.25);
+}
+
+.theme-toggle--dark:hover {
+  box-shadow:
+    0 0 25px rgba(139, 92, 246, 0.5),
+    0 0 50px rgba(100, 150, 255, 0.25);
 }
 
 .theme-toggle:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 
 .theme-toggle__svg {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   overflow: visible;
+  filter: drop-shadow(0 0 5px currentColor);
 }
 
 /* Sun core */
@@ -118,6 +140,7 @@ const ariaLabel = computed(() =>
   transform-origin: center;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateX(10px);
+  fill: #050510;
 }
 
 .theme-toggle--dark .theme-toggle__moon {
@@ -127,7 +150,7 @@ const ariaLabel = computed(() =>
 /* Touch-friendly sizing on mobile */
 @media (hover: none) {
   .theme-toggle {
-    --toggle-size: 48px;
+    --toggle-size: 52px;
   }
 }
 

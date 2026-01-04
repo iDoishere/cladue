@@ -9,6 +9,7 @@ interface Message {
 
 const props = defineProps<{
   messages: Message[]
+  isLoading?: boolean
 }>()
 
 const chatContainer = ref<HTMLElement>()
@@ -41,6 +42,20 @@ watch(() => props.messages.length, async () => {
             </div>
           </div>
         </div>
+
+        <!-- Loading indicator -->
+        <div v-if="isLoading" class="message assistant message-animate">
+          <div class="message-content">
+            <div class="avatar-small">🧑‍💻</div>
+            <div class="message-bubble loading-bubble">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -51,13 +66,16 @@ watch(() => props.messages.length, async () => {
   width: 100%;
   max-width: 1100px;
   height: 100%;
-  background: var(--card-bg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: 32px;
-  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
-  padding: 50px;
+  box-shadow: var(--glass-shadow-lg);
+  padding: 40px;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .chat-container {
@@ -101,14 +119,15 @@ watch(() => props.messages.length, async () => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--bg-gradient);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-  transition: background 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .message-bubble {
@@ -116,21 +135,23 @@ watch(() => props.messages.length, async () => {
   border-radius: 20px;
   line-height: 1.6;
   font-size: 15px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .message.user .message-bubble {
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+  background: linear-gradient(135deg, #4A9EFF 0%, #8B5CF6 100%);
   color: white;
   border-bottom-right-radius: 6px;
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.4);
 }
 
 .message.assistant .message-bubble {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background: var(--glass-bg-light);
+  backdrop-filter: blur(10px);
+  color: var(--glass-text-primary);
+  border: 1px solid var(--glass-border-light);
   border-bottom-left-radius: 6px;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 /* Message animation */
@@ -150,24 +171,62 @@ watch(() => props.messages.length, async () => {
   opacity: 0;
 }
 
+/* Typing indicator */
+.loading-bubble {
+  padding: 16px 24px !important;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4A9EFF 0%, #8B5CF6 100%);
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
 /* Scrollbar styling */
 .chat-container::-webkit-scrollbar {
   width: 8px;
 }
 
 .chat-container::-webkit-scrollbar-track {
-  background: var(--bg-tertiary);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
 .chat-container::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
 
 .chat-container::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 768px) {

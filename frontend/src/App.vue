@@ -2,11 +2,8 @@
 import { ref } from 'vue'
 import ChatContainer from './components/chat/ChatContainer.vue'
 import TabBar from './components/navigation/TabBar.vue'
-import ProfileView from './components/chat/ProfileView.vue'
-import ProjectsView from './components/chat/ProjectsView.vue'
-import SkillsView from './components/chat/SkillsView.vue'
-import ContactView from './components/chat/ContactView.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
+import ParticleBackground from './components/backgrounds/ParticleBackground.vue'
 import { chatWithAI } from './services/ai.service'
 
 interface Message {
@@ -19,56 +16,42 @@ const activeTab = ref('')
 const messages = ref<Message[]>([])
 const inputText = ref('')
 const showChat = ref(false)
-const showProfile = ref(false)
-const showProjects = ref(false)
-const showSkills = ref(false)
-const showContact = ref(false)
 const isLoading = ref(false)
+
+// Map tabs to AI prompts
+const tabPrompts: Record<string, string> = {
+  'Me': 'Tell me about Ido Cohen - who is he and what does he do?',
+  'Projects': 'What projects has Ido worked on? Show me his best work.',
+  'Skills': 'What are Ido\'s technical skills and expertise levels?',
+  'Fun': 'Tell me something fun or interesting about Ido!',
+  'Contact': 'How can I contact Ido? What are his contact details?'
+}
 
 async function handleTabClick(tab: string) {
   activeTab.value = tab
   inputText.value = ''
+  showChat.value = true
 
-  // Reset all views
-  showProfile.value = false
-  showProjects.value = false
-  showSkills.value = false
-  showContact.value = false
-  showChat.value = false
+  const message = tabPrompts[tab] || `Tell me about ${tab}`
 
-  // Show appropriate view based on tab
-  if (tab === 'Me') {
-    showProfile.value = true
-  } else if (tab === 'Projects') {
-    showProjects.value = true
-  } else if (tab === 'Skills') {
-    showSkills.value = true
-  } else if (tab === 'Contact') {
-    showContact.value = true
-  } else {
-    // For Fun tab, show chat with AI
-    showChat.value = true
-    const message = `Tell me about ${tab}`
+  // Add user message
+  messages.value.push({
+    role: 'user' as const,
+    content: message,
+    timestamp: new Date()
+  })
 
-    // Add user message
-    messages.value.push({
-      role: 'user' as const,
-      content: message,
-      timestamp: new Date()
-    })
+  // Get AI response
+  isLoading.value = true
+  const aiResponse = await chatWithAI(message)
+  isLoading.value = false
 
-    // Get AI response
-    isLoading.value = true
-    const aiResponse = await chatWithAI(message)
-    isLoading.value = false
-
-    // Add AI response
-    messages.value.push({
-      role: 'assistant' as const,
-      content: aiResponse,
-      timestamp: new Date()
-    })
-  }
+  // Add AI response
+  messages.value.push({
+    role: 'assistant' as const,
+    content: aiResponse,
+    timestamp: new Date()
+  })
 }
 
 async function handleSendMessage() {
@@ -101,49 +84,34 @@ async function handleSendMessage() {
 
 <template>
   <div class="app">
+    <!-- Particle Background -->
+    <ParticleBackground />
+
     <div class="main-content">
-      <!-- Header with Logo and Theme Toggle -->
+      <!-- Header with Logo and Toggles -->
       <div class="header animate-fade-in" style="animation-delay: 0.1s">
-        <div class="logo">IC</div>
-        <ThemeToggle />
+        <div class="logo glass">IC</div>
+        <div class="header-controls">
+          <ThemeToggle />
+        </div>
       </div>
 
-      <!-- Title - Hide when any content is visible -->
-      <div v-if="!showChat && !showProfile && !showProjects && !showSkills && !showContact" class="title-section animate-fade-in" style="animation-delay: 0.2s">
+      <!-- Title - Hide when chat is visible -->
+      <div v-if="!showChat" class="title-section animate-fade-in" style="animation-delay: 0.2s">
         <p class="greeting">Hey, I'm Ido 👋</p>
         <h1 class="main-title">AI Portfolio</h1>
       </div>
 
-      <!-- Avatar - Hide when any content is visible -->
-      <div v-if="!showChat && !showProfile && !showProjects && !showSkills && !showContact" class="avatar-container animate-scale-in" style="animation-delay: 0.3s">
-        <div class="avatar-memoji">
+      <!-- Avatar - Hide when chat is visible -->
+      <div v-if="!showChat" class="avatar-container animate-scale-in" style="animation-delay: 0.3s">
+        <div class="avatar-memoji glass-card">
           <div class="avatar-placeholder">🧑‍💻</div>
         </div>
       </div>
 
-      <!-- Profile View - Shows when "Me" tab is clicked -->
-      <div v-if="showProfile" class="content-wrapper animate-slide-up">
-        <ProfileView />
-      </div>
-
-      <!-- Projects View - Shows when "Projects" tab is clicked -->
-      <div v-if="showProjects" class="content-wrapper animate-slide-up">
-        <ProjectsView />
-      </div>
-
-      <!-- Skills View - Shows when "Skills" tab is clicked -->
-      <div v-if="showSkills" class="content-wrapper animate-slide-up">
-        <SkillsView />
-      </div>
-
-      <!-- Contact View - Shows when "Contact" tab is clicked -->
-      <div v-if="showContact" class="content-wrapper animate-slide-up">
-        <ContactView />
-      </div>
-
-      <!-- Chat Container - Shows ABOVE tabs when there are messages -->
+      <!-- Chat Container - Shows when there are messages -->
       <div v-if="showChat && messages.length > 0" class="content-wrapper animate-slide-up">
-        <ChatContainer :messages="messages" />
+        <ChatContainer :messages="messages" :is-loading="isLoading" />
       </div>
 
       <!-- Input Field -->
@@ -152,7 +120,7 @@ async function handleSendMessage() {
           v-model="inputText"
           type="text"
           placeholder="Ask me anything..."
-          class="chat-input"
+          class="chat-input glass-input"
           @keyup.enter="handleSendMessage"
         />
         <button class="send-button" @click="handleSendMessage">
@@ -173,13 +141,12 @@ async function handleSendMessage() {
 <style scoped>
 .app {
   height: 100vh;
-  background: var(--bg-primary);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   overflow: hidden;
-  transition: background-color 0.3s ease;
+  position: relative;
 }
 
 .main-content {
@@ -191,6 +158,8 @@ async function handleSendMessage() {
   align-items: center;
   gap: 20px;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .header {
@@ -201,18 +170,35 @@ async function handleSendMessage() {
   padding: 0 10px;
 }
 
+.header-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .logo {
-  width: 40px;
-  height: 40px;
-  background: var(--logo-bg);
-  color: var(--logo-text);
-  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 16px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 18px;
+  color: white;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2) 0%, rgba(255, 0, 255, 0.2) 100%);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.3),
+    0 0 40px rgba(255, 0, 255, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(255, 0, 255, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.5), 0 0 60px rgba(255, 0, 255, 0.3); }
 }
 
 .title-section {
@@ -221,39 +207,77 @@ async function handleSendMessage() {
 }
 
 .greeting {
-  font-size: 20px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 12px;
   font-weight: 400;
+  text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
 .main-title {
-  font-size: 72px;
+  font-size: 80px;
   font-weight: 900;
-  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.03em;
   line-height: 1;
+  background: linear-gradient(135deg, #00ffff 0%, #ff00ff 50%, #00ff88 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease infinite;
+  filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.5)) drop-shadow(0 0 60px rgba(255, 0, 255, 0.3));
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .avatar-container {
   margin: 10px 0;
+  position: relative;
+}
+
+.avatar-container::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: conic-gradient(from 0deg, #00ffff, #ff00ff, #00ff88, #ffd93d, #00ffff);
+  border-radius: 50%;
+  animation: rotateGlow 4s linear infinite;
+  opacity: 0.6;
+  filter: blur(20px);
+}
+
+@keyframes rotateGlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .avatar-memoji {
-  width: 280px;
-  height: 280px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  background: var(--bg-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-lg);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(10, 10, 30, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    0 0 40px rgba(0, 255, 255, 0.3),
+    0 0 80px rgba(255, 0, 255, 0.2),
+    inset 0 0 40px rgba(255, 255, 255, 0.05);
 }
 
 .avatar-placeholder {
-  font-size: 140px;
+  font-size: 130px;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
 }
 
 .input-section {
@@ -267,43 +291,59 @@ async function handleSendMessage() {
 
 .chat-input {
   flex: 1;
-  padding: 16px 24px;
-  border: 2px solid var(--border-color);
+  padding: 18px 28px;
   border-radius: 50px;
-  font-size: 15px;
+  font-size: 16px;
   outline: none;
-  transition: all 0.2s;
-  background: var(--input-bg);
-  color: var(--text-primary);
+  background: rgba(10, 10, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 .chat-input::placeholder {
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .chat-input:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+  border-color: rgba(0, 255, 255, 0.5);
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.3),
+    0 0 40px rgba(255, 0, 255, 0.2),
+    0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 .send-button {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: var(--accent-color);
+  background: linear-gradient(135deg, #00ffff 0%, #ff00ff 100%);
   color: white;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   flex-shrink: 0;
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.4),
+    0 0 40px rgba(255, 0, 255, 0.3);
+  animation: buttonPulse 2s ease-in-out infinite;
+}
+
+@keyframes buttonPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 40px rgba(255, 0, 255, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.6), 0 0 60px rgba(255, 0, 255, 0.4); }
 }
 
 .send-button:hover {
-  background: var(--accent-hover);
-  transform: scale(1.05);
+  transform: scale(1.15);
+  box-shadow:
+    0 0 30px rgba(0, 255, 255, 0.6),
+    0 0 60px rgba(255, 0, 255, 0.5);
 }
 
 .send-button:active {
@@ -369,11 +409,11 @@ async function handleSendMessage() {
 
 @media (max-width: 768px) {
   .main-title {
-    font-size: 42px;
+    font-size: 48px;
   }
 
   .greeting {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .avatar-memoji {
@@ -383,6 +423,15 @@ async function handleSendMessage() {
 
   .avatar-placeholder {
     font-size: 90px;
+  }
+
+  .header-controls {
+    gap: 8px;
+  }
+
+  .logo {
+    width: 44px;
+    height: 44px;
   }
 }
 </style>

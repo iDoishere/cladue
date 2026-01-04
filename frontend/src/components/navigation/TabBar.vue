@@ -38,6 +38,16 @@ const tabs = [
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 18px 28px;
+  background: rgba(10, 10, 30, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(0, 255, 255, 0.1),
+    inset 0 0 30px rgba(255, 255, 255, 0.02);
 }
 
 .tab {
@@ -49,74 +59,91 @@ const tabs = [
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 80px;
 }
 
 .tab:hover {
-  transform: translateY(-3px);
+  transform: translateY(-8px);
 }
 
 .tab:hover .tab-icon {
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow:
+    0 0 25px rgba(0, 255, 255, 0.5),
+    0 0 50px rgba(255, 0, 255, 0.3),
+    0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .tab.active .tab-icon {
-  transform: scale(1.05);
+  transform: scale(1.1);
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.4),
+    0 0 40px rgba(255, 0, 255, 0.2),
+    0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .tab-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
-  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .icon {
-  font-size: 24px;
+  font-size: 26px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
 .tab-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);
-  transition: color 0.2s;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .tab.active .tab-label {
-  color: var(--text-primary);
+  color: white;
   font-weight: 600;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
 }
 
 .tab:hover .tab-label {
-  color: var(--text-primary);
+  color: white;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
 }
 
 @media (max-width: 600px) {
   .tab-bar {
-    gap: 12px;
+    gap: 10px;
+    padding: 14px 18px;
   }
 
   .tab {
-    min-width: 70px;
-    padding: 10px 12px;
+    min-width: 55px;
+    padding: 6px;
   }
 
   .tab-icon {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
   }
 
   .icon {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .tab-label {
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 </style>

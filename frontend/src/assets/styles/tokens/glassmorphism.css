@@ -1,0 +1,70 @@
+/**
+ * Glassmorphism Design Tokens
+ * Frosted glass effects for immersive UI
+ */
+
+:root {
+  /* Glass backgrounds */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-bg-light: rgba(255, 255, 255, 0.15);
+  --glass-bg-strong: rgba(255, 255, 255, 0.2);
+
+  /* Glass borders */
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-border-light: rgba(255, 255, 255, 0.1);
+
+  /* Blur values */
+  --glass-blur: blur(20px);
+  --glass-blur-light: blur(10px);
+  --glass-blur-strong: blur(30px);
+
+  /* Glass shadows */
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.3);
+  --glass-glow: 0 0 40px rgba(74, 158, 255, 0.15);
+
+  /* Text on glass */
+  --glass-text-primary: rgba(255, 255, 255, 0.95);
+  --glass-text-secondary: rgba(255, 255, 255, 0.7);
+  --glass-text-tertiary: rgba(255, 255, 255, 0.5);
+
+  /* Input on glass */
+  --glass-input-bg: rgba(0, 0, 0, 0.2);
+  --glass-input-border: rgba(255, 255, 255, 0.15);
+  --glass-input-focus: rgba(74, 158, 255, 0.5);
+}
+
+/* Glassmorphism utility classes */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-input {
+  background: var(--glass-input-bg);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: 1px solid var(--glass-input-border);
+  color: var(--glass-text-primary);
+}
+
+.glass-input::placeholder {
+  color: var(--glass-text-tertiary);
+}
+
+.glass-input:focus {
+  border-color: var(--glass-input-focus);
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+}
