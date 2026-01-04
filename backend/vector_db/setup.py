@@ -3,14 +3,19 @@ from chromadb.config import Settings
 from google import genai
 from google.genai import types
 import os
+from pathlib import Path
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from backend/.env
+backend_dir = Path(__file__).parent.parent
+load_dotenv(backend_dir / ".env")
 
 # Configure Gemini API
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise ValueError("GOOGLE_API_KEY not found in .env file")
+client = genai.Client(api_key=api_key)
 
 # ChromaDB client singleton
 _chroma_client = None
@@ -55,8 +60,9 @@ def get_vector_db():
         return _collection
 
     # Initialize ChromaDB client (persists to disk)
+    chroma_path = backend_dir / "storage" / "chroma"
     _chroma_client = chromadb.PersistentClient(
-        path="/home/idocohen/Projects/idoClaude/backend/storage/chroma",
+        path=str(chroma_path),
         settings=Settings(
             anonymized_telemetry=False,
             allow_reset=True
