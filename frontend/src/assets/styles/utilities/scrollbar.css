@@ -1,0 +1,18 @@
+/**
+ * Global scrollbar styles for chat container
+ */
+.chat-wrap {
+  scrollbar-width: thin;
+  scrollbar-color: #7c3aed transparent;
+}
+.chat-wrap::-webkit-scrollbar { width: 4px; }
+.chat-wrap::-webkit-scrollbar-track { background: transparent; }
+.chat-wrap::-webkit-scrollbar-thumb {
+  background: #7c3aed;
+  border-radius: 100px;
+  box-shadow: 0 0 8px #7c3aed, 0 0 16px rgba(124, 58, 237, 0.5);
+}
+.chat-wrap::-webkit-scrollbar-thumb:hover {
+  background: #a78bfa;
+  box-shadow: 0 0 10px #a78bfa, 0 0 22px rgba(167, 139, 250, 0.6);
+}

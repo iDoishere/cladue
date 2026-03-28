@@ -1,123 +1,89 @@
 from agno.agent import Agent
 from agno.models.google import Gemini
+from agno.tools import tool
+from agno.db.sqlite import SqliteDb
 from knowledge import projects_data, experience_data
 from tools import (
-    search_projects,
-    search_projects_semantic,
-    get_skill_level,
-    list_skills_by_category,
-    get_experience_details,
-    get_current_role,
-    get_contact_information,
-    get_hiring_availability,
-    suggest_next_steps,
+    send_contact_email as _send_contact_email,
+    search_portfolio as _search_portfolio,
+    get_contact_information as _get_contact_information,
+    get_hiring_availability as _get_hiring_availability,
 )
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Create Portfolio AI Agent
-portfolio_agent = Agent(
-    name="Ido Portfolio Assistant",
-    model=Gemini(id="gemini-2.5-flash"),  # Stable Gemini 2.5 model (Dec 2025)
+# Apply agno decorator at the boundary — NOT inside tool files
+search_portfolio      = tool(_search_portfolio)
+send_contact_email    = tool(_send_contact_email)
+get_contact_information = tool(_get_contact_information)
+get_hiring_availability = tool(_get_hiring_availability)
 
-    # Agent personality and behavior
-    description="AI assistant for Ido Cohen's portfolio",
-    instructions=[
-        # Core Identity
-        "You are Ido Cohen's portfolio assistant - a knowledgeable, enthusiastic guide helping visitors learn about Ido's work",
-        "Speak in first person as if you're representing Ido, but make it clear you're an AI assistant",
 
-        # Personality & Tone
-        "Be friendly, professional, and conversational - like a helpful colleague",
-        "Show enthusiasm about Ido's projects and expertise without being overly salesy",
-        "Use emojis sparingly to add warmth (max 1-2 per response)",
+def create_agent() -> Agent:
+    return Agent(
+        name="Ido Portfolio Assistant",
+        model=Gemini(id="gemini-2.5-flash"),
+        db=SqliteDb(db_file="portfolio.db", session_table="sessions"),
 
-        # Response Guidelines
-        "Keep responses concise (2-4 paragraphs) unless user explicitly asks for more detail",
-        "Use markdown formatting for better readability (bold for emphasis, bullets for lists)",
-        "Structure longer responses with clear sections using **headings**",
+        description="AI assistant for Ido Cohen's portfolio",
+        instructions=[
+            # Identity
+            "You are Ido Cohen's portfolio assistant — an AI guide helping visitors learn about Ido's work",
+            "Always refer to Ido in third person ('Ido works at...', 'He built...', 'His skills include...'). Never speak as if you are Ido.",
 
-        # Technical Communication
-        "When discussing projects, always mention specific technologies and real-world features",
-        "Highlight Ido's expertise in Vue.js, React, and full-stack development naturally",
-        "Connect technologies to business value (e.g., 'Vue.js for fast, reactive UIs')",
+            # Tone
+            "Be friendly, professional, and conversational",
+            "Use emojis sparingly (max 1-2 per response)",
 
-        # Tool Usage Strategy
-        "Use search_projects_semantic for natural language queries (e.g., 'real-time projects', 'apps with maps', 'database work')",
-        "Use search_projects for specific technology names (e.g., 'React projects', 'Firebase apps', 'Java code')",
-        "Prefer semantic search when users describe what they want rather than naming exact technologies",
-        "ALWAYS use get_skill_level when users ask about proficiency, expertise, or skill levels",
-        "Use list_skills_by_category when users want an overview of technical skills",
+            # Responses
+            "Keep responses concise (1-2 paragraphs max). Be direct and specific. No filler.",
+            "Use markdown formatting — bold for emphasis, bullets for lists",
 
-        # Tool Output Handling
-        "When tools return JSON data, parse it and format conversationally - don't just dump raw JSON",
-        "Adapt tool results to match the user's question style (formal vs casual, brief vs detailed)",
-        "Add your own insights and commentary on top of tool data to make responses engaging",
+            # Tool Usage
+            "ALWAYS call search_portfolio for any question about Ido's skills, projects, or experience — it searches all knowledge semantically via ChromaDB",
+            "Use type_filter='project' for project questions, 'skill_group' for skills, 'experience' for work history",
+            "Use get_contact_information for email, phone, LinkedIn, GitHub links",
+            "Use get_hiring_availability when asked if Ido is available to hire",
 
-        # Context Awareness
-        "Maintain conversation context - reference previous messages naturally",
-        "If a user asks 'tell me more', elaborate on the last topic discussed",
-        "Track what information you've already shared to avoid repetition",
+            # Email / Contact
+            "If a user wants to contact Ido — guide them to collect: name, company, email, and message. Then call send_contact_email.",
+            "Collect info one step at a time. First name+company, then email, then message.",
+            "Before sending, briefly confirm the details.",
+            "After send_contact_email succeeds, start your response with 'EMAIL_SENT' so the frontend triggers a celebration.",
 
-        # Engagement & Follow-up
-        "End responses with a subtle follow-up question or suggestion when appropriate",
-        "Guide users toward asking about projects, skills, or experience if conversation is vague",
-        "If user's question is unclear, ask a clarifying question before answering",
+            # Edge cases
+            "If asked about weaknesses, reframe positively (e.g., 'currently expanding backend expertise')",
+            "If asked something you don't know, admit it and suggest what you can help with",
+        ],
 
-        # Special Cases
-        "If asked about hiring/availability, mention Ido is currently at Tigloo and open to opportunities",
-        "If asked about weaknesses, reframe positively (e.g., 'currently expanding backend expertise')",
-        "If asked something you don't know, admit it honestly and suggest what you can help with",
-    ],
-
-    # Additional context - CV data embedded in instructions
-    additional_context=f"""
+        additional_context=f"""
 ABOUT IDO COHEN:
-
-**Personal Information:**
 • Name: Ido Cohen
-• Title: Full-Stack Developer
-• Location: Rosh Ashlain, Israel
-• Email: idoisher2@gmail.com
-• Portfolio: https://portfoliolo.firebaseapp.com/
-• Current Role: Front-End Developer at Tigloo (since 2020)
-• Primary Skills: Vue.js (90%), JavaScript (95%), React (85%), Node.js (80%)
+• Title: Frontend Developer
+• Location: Rosh HaAyin, Israel
+• Email: idoishere2@gmail.com
+• Current Role: Front-End Developer at Trackbox.ai (since 2020)
+• Primary Skills: Vue.js, JavaScript, TypeScript, React
 
-**Professional Experience:**
-{chr(10).join([f"• {exp['title']} at {exp['company']} ({exp['period']})" for exp in experience_data])}
+**Experience:**
+{chr(10).join([f"• {exp.title} at {exp.company} ({exp.period})" for exp in experience_data])}
 
 **Projects:**
-{chr(10).join([f"• {proj['title']} ({proj['year']}): {proj['description'][:100]}..." for proj in projects_data])}
+{chr(10).join([f"• {proj.title} ({proj.year})" for proj in projects_data])}
 
-Use the search_projects tool for detailed project information.
-Use the get_skill_level tool to get specific skill proficiency levels.
+Use search_portfolio to get full details on any of the above.
 """,
 
-    # Tools the agent can use - expanded toolkit for richer interactions
-    tools=[
-        # Project & Portfolio Tools
-        search_projects,              # Search projects by technology or keyword
-        search_projects_semantic,     # Semantic search for natural language queries
+        tools=[
+            search_portfolio,
+            send_contact_email,
+            get_contact_information,
+            get_hiring_availability,
+        ],
 
-        # Skills & Expertise Tools
-        get_skill_level,             # Get proficiency level for specific skill
-        list_skills_by_category,     # List all skills by category (frontend/backend/tools)
-
-        # Experience & Career Tools
-        get_experience_details,      # Get detailed work experience
-        get_current_role,            # Get current position details
-
-        # Contact & Hiring Tools
-        get_contact_information,     # Get contact details
-        get_hiring_availability,     # Check if open to opportunities
-        suggest_next_steps,          # Suggest actions based on user goal
-    ],
-
-    # Output formatting
-    markdown=True,
-
-    # Debugging
-    debug_mode=True
-)
+        add_history_to_context=True,
+        num_history_runs=10,
+        markdown=True,
+        debug_mode=True
+    )

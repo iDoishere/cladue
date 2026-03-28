@@ -1,32 +1,27 @@
 <script setup lang="ts">
-defineProps<{
-  activeTab: string
-}>()
+defineProps<{ activeTab: string }>()
 
-const emit = defineEmits<{
-  tabClick: [tab: string]
-}>()
+const emit = defineEmits<{ tabClick: [tab: string] }>()
 
 const tabs = [
-  { name: 'Me', icon: '👤', color: '#14b8a6' },
-  { name: 'Projects', icon: '💼', color: '#22c55e' },
-  { name: 'Skills', icon: '📚', color: '#8b5cf6' },
-  { name: 'Fun', icon: '🎨', color: '#ec4899' },
-  { name: 'Contact', icon: '📞', color: '#f59e0b' }
+  { name: 'Me',       icon: '👤' },
+  { name: 'Projects', icon: '💼' },
+  { name: 'Skills',   icon: '⚡' },
+  { name: 'Fun',      icon: '✦'  },
+  { name: 'Contact',  icon: '→'  },
 ]
 </script>
 
 <template>
   <div class="tab-bar">
     <button
-      v-for="tab in tabs"
+      v-for="(tab, i) in tabs"
       :key="tab.name"
       :class="['tab', { active: activeTab === tab.name }]"
+      :style="{ '--i': i }"
       @click="emit('tabClick', tab.name)"
     >
-      <div class="tab-icon" :style="{ backgroundColor: activeTab === tab.name ? tab.color : 'var(--tab-bg)' }">
-        <span class="icon">{{ tab.icon }}</span>
-      </div>
+      <span class="tab-icon">{{ tab.icon }}</span>
       <span class="tab-label">{{ tab.name }}</span>
     </button>
   </div>
@@ -35,115 +30,61 @@ const tabs = [
 <style scoped>
 .tab-bar {
   display: flex;
-  gap: 16px;
+  gap: 6px;
   justify-content: center;
-  flex-wrap: wrap;
-  padding: 18px 28px;
-  background: rgba(10, 10, 30, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 30px;
-  box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(0, 255, 255, 0.1),
-    inset 0 0 30px rgba(255, 255, 255, 0.02);
+  padding: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
 }
 
 .tab {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border: none;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 80px;
+  transition: background 0.18s, transform 0.15s, color 0.18s;
+  color: rgba(255,255,255,0.45);
+  animation: tab-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.5s + var(--i) * 0.07s);
+}
+
+@keyframes tab-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .tab:hover {
-  transform: translateY(-8px);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.75);
+  transform: translateY(-1px);
 }
 
-.tab:hover .tab-icon {
-  transform: scale(1.15);
-  box-shadow:
-    0 0 25px rgba(0, 255, 255, 0.5),
-    0 0 50px rgba(255, 0, 255, 0.3),
-    0 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-.tab.active .tab-icon {
-  transform: scale(1.1);
-  box-shadow:
-    0 0 20px rgba(0, 255, 255, 0.4),
-    0 0 40px rgba(255, 0, 255, 0.2),
-    0 8px 25px rgba(0, 0, 0, 0.3);
+.tab.active {
+  background: rgba(124,58,237,0.18);
+  border: 1px solid rgba(124,58,237,0.25);
+  color: #c4b5fd;
 }
 
 .tab-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.icon {
-  font-size: 26px;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  font-size: 15px;
+  line-height: 1;
 }
 
 .tab-label {
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
-  transition: all 0.3s ease;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.2px;
 }
 
-.tab.active .tab-label {
-  color: white;
-  font-weight: 600;
-  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-}
-
-.tab:hover .tab-label {
-  color: white;
-  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-}
-
-@media (max-width: 600px) {
-  .tab-bar {
-    gap: 10px;
-    padding: 14px 18px;
-  }
-
-  .tab {
-    min-width: 55px;
-    padding: 6px;
-  }
-
-  .tab-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-  }
-
-  .icon {
-    font-size: 22px;
-  }
-
-  .tab-label {
-    font-size: 11px;
-  }
+@media (max-width: 520px) {
+  .tab-label { display: none; }
+  .tab { padding: 10px 14px; }
+  .tab-icon { font-size: 18px; }
 }
 </style>

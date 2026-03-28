@@ -1,6 +1,3 @@
-from agno.tools import tool
-
-@tool
 def get_contact_information() -> str:
     """
     Get Ido's contact information and professional links.
@@ -28,7 +25,6 @@ Ido typically responds within 24-48 hours and is open to discussing:
 """
 
 
-@tool
 def get_hiring_availability() -> str:
     """
     Check if Ido is open to new opportunities and what he's looking for.
@@ -65,7 +61,6 @@ Companies building modern web applications with a focus on user experience and c
 """
 
 
-@tool
 def suggest_next_steps(user_goal: str) -> str:
     """
     Suggest what the user should do next based on their goal.

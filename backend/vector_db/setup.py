@@ -1,193 +1,201 @@
 import chromadb
 from chromadb.config import Settings
-from google import genai
-from google.genai import types
-import os
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
+from vector_db.providers import get_default_provider, EmbeddingProvider
 
-# Load environment variables from backend/.env
 backend_dir = Path(__file__).parent.parent
-load_dotenv(backend_dir / ".env")
 
-# Configure Gemini API
-api_key = os.getenv("GOOGLE_API_KEY")
-if not api_key:
-    raise ValueError("GOOGLE_API_KEY not found in .env file")
-client = genai.Client(api_key=api_key)
+env_file = backend_dir / ".env"
+if env_file.exists():
+    load_dotenv(env_file)
 
-# ChromaDB client singleton
 _chroma_client = None
 _collection = None
+_provider: EmbeddingProvider = get_default_provider()
 
 
 def get_embedding(text: str) -> List[float]:
-    """
-    Generate embedding for text using Google Gemini's embedding model (FREE).
-
-    Args:
-        text: Text to embed
-
-    Returns:
-        List of floats representing the embedding vector
-    """
-    try:
-        # Use Gemini's embedding model (text-embedding-004 is free and powerful)
-        result = client.models.embed_content(
-            model="text-embedding-004",
-            contents=text
-        )
-        return result.embeddings[0].values
-    except Exception as e:
-        print(f"Error generating embedding: {e}")
-        import traceback
-        traceback.print_exc()
-        # Return zero vector as fallback
-        return [0.0] * 768  # text-embedding-004 produces 768-dim vectors
+    return _provider.embed(text)
 
 
-def get_vector_db():
-    """
-    Get or create ChromaDB client and collection.
-
-    Returns:
-        ChromaDB collection for projects
-    """
+def get_portfolio_collection():
+    """Single collection for all portfolio knowledge."""
     global _chroma_client, _collection
 
     if _collection is not None:
         return _collection
 
-    # Initialize ChromaDB client (persists to disk)
     chroma_path = backend_dir / "storage" / "chroma"
     _chroma_client = chromadb.PersistentClient(
         path=str(chroma_path),
-        settings=Settings(
-            anonymized_telemetry=False,
-            allow_reset=True
-        )
+        settings=Settings(anonymized_telemetry=False, allow_reset=True)
     )
 
-    # Get or create collection for projects
     _collection = _chroma_client.get_or_create_collection(
-        name="ido_projects",
-        metadata={"description": "Ido Cohen's portfolio projects with semantic search"}
+        name="portfolio_knowledge",
+        metadata={"description": "All of Ido Cohen's portfolio knowledge"}
     )
 
     return _collection
 
 
-def index_projects(projects: List[Dict[str, Any]]) -> int:
-    """
-    Index projects into ChromaDB with Gemini embeddings.
+# Keep old name as alias for backward compatibility
+def get_vector_db():
+    return get_portfolio_collection()
 
-    Args:
-        projects: List of project dictionaries from knowledge base
 
-    Returns:
-        Number of projects indexed
-    """
-    collection = get_vector_db()
-
-    # Clear existing data if any exists
+def _clear_collection(collection):
     try:
-        existing_count = collection.count()
-        if existing_count > 0:
-            # Get all existing IDs and delete them
-            existing_data = collection.get()
-            if existing_data and existing_data['ids']:
-                collection.delete(ids=existing_data['ids'])
-                print(f"🗑️  Cleared {existing_count} existing documents")
+        existing = collection.get()
+        if existing and existing['ids']:
+            collection.delete(ids=existing['ids'])
+            print(f"🗑️  Cleared {len(existing['ids'])} existing documents")
     except Exception as e:
         print(f"Note: Could not clear existing data: {e}")
 
-    documents = []
-    embeddings = []
-    metadatas = []
-    ids = []
+
+def index_projects(projects) -> int:
+    collection = get_portfolio_collection()
+    _clear_collection(collection)
+
+    documents, embeddings, metadatas, ids = [], [], [], []
 
     for project in projects:
-        # Create rich text representation for embedding
-        # Combine title, description, technologies, and features
-        text_for_embedding = f"""
-Title: {project['title']}
+        text = f"""Project: {project.title}
 
-Description: {project['description']}
+Description: {project.description}
 
-Technologies: {', '.join(project['technologies'])}
+Technologies: {', '.join(project.technologies)}
 
 Features:
-{chr(10).join(['- ' + feature for feature in project['features']])}
+{chr(10).join('- ' + f for f in project.features)}
 
-Year: {project['year']}
+Year: {project.year}
 """
-
-        # Generate embedding using Gemini (FREE)
-        embedding = get_embedding(text_for_embedding.strip())
-
-        # Prepare data for ChromaDB
-        documents.append(text_for_embedding.strip())
-        embeddings.append(embedding)
-        ids.append(project['id'])
-
-        # Store metadata (all project fields for retrieval)
+        documents.append(text.strip())
+        embeddings.append(get_embedding(text.strip()))
+        ids.append(f"project-{project.id}")
         metadatas.append({
-            "title": project['title'],
-            "description": project['description'],
-            "technologies": ", ".join(project['technologies']),
-            "year": str(project['year']),
-            "id": project['id']
+            "type": "project",
+            "id": project.id,
+            "title": project.title,
+            "description": project.description,
+            "technologies": ", ".join(project.technologies),
+            "year": str(project.year),
         })
 
-    # Add to ChromaDB
-    collection.add(
-        documents=documents,
-        embeddings=embeddings,
-        metadatas=metadatas,
-        ids=ids
-    )
-
-    print(f"✅ Indexed {len(projects)} projects into vector database")
+    collection.add(documents=documents, embeddings=embeddings, metadatas=metadatas, ids=ids)
+    print(f"✅ Indexed {len(projects)} projects")
     return len(projects)
 
 
-def search_similar_projects(query: str, n_results: int = 3) -> List[Dict[str, Any]]:
-    """
-    Search for projects semantically similar to the query.
+def index_skills(skills_data: Dict) -> int:
+    collection = get_portfolio_collection()
+    documents, embeddings, metadatas, ids = [], [], [], []
 
-    Args:
-        query: Natural language search query
-        n_results: Number of results to return
+    for category, skills in skills_data.items():
+        sorted_skills = sorted(skills, key=lambda s: s.level, reverse=True)
+        skill_lines = "\n".join(f"- {s.name}: {s.level}% proficiency" for s in sorted_skills)
 
-    Returns:
-        List of matching projects with similarity scores
-    """
-    collection = get_vector_db()
+        text = f"""Ido Cohen's {category.capitalize()} Skills:
 
-    # Generate embedding for the search query
+{skill_lines}
+
+Category: {category}
+Top skill: {sorted_skills[0].name} at {sorted_skills[0].level}%
+All skills: {', '.join(s.name for s in sorted_skills)}
+"""
+        documents.append(text.strip())
+        embeddings.append(get_embedding(text.strip()))
+        ids.append(f"skills-{category}")
+        metadatas.append({
+            "type": "skill_group",
+            "category": category,
+            "title": f"{category.capitalize()} Skills",
+            "top_skill": sorted_skills[0].name,
+            "top_level": str(sorted_skills[0].level),
+            "skill_names": ", ".join(s.name for s in sorted_skills),
+        })
+
+    collection.add(documents=documents, embeddings=embeddings, metadatas=metadatas, ids=ids)
+    print(f"✅ Indexed {len(skills_data)} skill groups")
+    return len(skills_data)
+
+
+def index_experience(experience_data) -> int:
+    collection = get_portfolio_collection()
+    documents, embeddings, metadatas, ids = [], [], [], []
+
+    for exp in experience_data:
+        techs = ", ".join(exp.technologies) if exp.technologies else "N/A"
+        resp_text = "\n".join(f"- {r}" for r in exp.responsibilities)
+        current_tag = "Current role" if exp.current else "Previous role"
+
+        text = f"""Work Experience: {exp.title} at {exp.company}
+{current_tag} | Period: {exp.period} | Location: {exp.location}
+
+Responsibilities:
+{resp_text}
+
+Technologies: {techs}
+"""
+        documents.append(text.strip())
+        embeddings.append(get_embedding(text.strip()))
+        ids.append(f"experience-{exp.company.lower().replace('.', '').replace(' ', '-')}")
+        metadatas.append({
+            "type": "experience",
+            "company": exp.company,
+            "title": exp.title,
+            "period": exp.period,
+            "current": str(exp.current),
+            "technologies": techs,
+        })
+
+    collection.add(documents=documents, embeddings=embeddings, metadatas=metadatas, ids=ids)
+    print(f"✅ Indexed {len(experience_data)} experience entries")
+    return len(experience_data)
+
+
+def search_portfolio(query: str, n_results: int = 4, type_filter: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Semantic search across all portfolio knowledge."""
+    collection = get_portfolio_collection()
+
+    if collection.count() == 0:
+        return []
+
     query_embedding = get_embedding(query)
+    where = {"type": type_filter} if type_filter else None
 
-    # Search ChromaDB
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=min(n_results, collection.count())
+        n_results=min(n_results, collection.count()),
+        where=where,
+        include=["documents", "metadatas", "distances"]
     )
 
-    # Format results
     matches = []
     if results and results['metadatas']:
         for i, metadata in enumerate(results['metadatas'][0]):
-            # Extract distance/similarity score
             distance = results['distances'][0][i] if results.get('distances') else None
-
             matches.append({
-                "id": metadata['id'],
-                "title": metadata['title'],
-                "description": metadata['description'],
-                "technologies": metadata['technologies'].split(", "),
-                "year": int(metadata['year']),
-                "similarity_score": round(1 - distance, 3) if distance else None  # Convert distance to similarity
+                **metadata,
+                "content": results['documents'][0][i],
+                "relevance": round(1 - distance, 3) if distance else None,
             })
 
     return matches
+
+
+# Backward compat
+def search_similar_projects(query: str, n_results: int = 3) -> List[Dict[str, Any]]:
+    results = search_portfolio(query, n_results=n_results, type_filter="project")
+    return [{
+        "id": r.get("id", ""),
+        "title": r.get("title", ""),
+        "description": r.get("description", ""),
+        "technologies": r.get("technologies", "").split(", "),
+        "year": int(r.get("year", 0)),
+        "similarity_score": r.get("relevance"),
+    } for r in results]

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
+import VueMarkdownIt from 'vue3-markdown-it'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -12,15 +13,16 @@ const props = defineProps<{
   isLoading?: boolean
 }>()
 
-const chatContainer = ref<HTMLElement>()
+const messagesEnd = ref<HTMLElement>()
 
-// Auto-scroll to bottom when new messages arrive
-watch(() => props.messages.length, async () => {
-  await nextTick()
-  if (chatContainer.value) {
-    chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-  }
-})
+function scrollToBottom() {
+  nextTick(() => {
+    messagesEnd.value?.scrollIntoView({ behavior: 'smooth' })
+  })
+}
+
+watch(() => props.messages.length, scrollToBottom)
+watch(() => props.isLoading, scrollToBottom)
 </script>
 
 <template>
@@ -38,7 +40,8 @@ watch(() => props.messages.length, async () => {
               🧑‍💻
             </div>
             <div class="message-bubble">
-              {{ message.content }}
+              <VueMarkdownIt v-if="message.role === 'assistant'" :source="message.content" />
+              <span v-else>{{ message.content }}</span>
             </div>
           </div>
         </div>
@@ -56,6 +59,8 @@ watch(() => props.messages.length, async () => {
             </div>
           </div>
         </div>
+
+        <div ref="messagesEnd"></div>
       </div>
     </div>
   </div>
@@ -64,30 +69,20 @@ watch(() => props.messages.length, async () => {
 <style scoped>
 .chat-container-wrapper {
   width: 100%;
-  max-width: 1100px;
   height: 100%;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 32px;
-  box-shadow: var(--glass-shadow-lg);
-  padding: 40px;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
 }
 
 .chat-container {
   width: 100%;
-  flex: 1;
-  overflow-y: auto;
 }
 
 .messages {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding-bottom: 16px;
 }
 
 .message {
@@ -166,8 +161,21 @@ watch(() => props.messages.length, async () => {
   }
 }
 
-.message-animate {
-  animation: messageSlideIn 0.4s ease-out forwards;
+@keyframes msg-from-right {
+  from { opacity: 0; transform: translateX(20px) translateY(6px); }
+  to   { opacity: 1; transform: translateX(0) translateY(0); }
+}
+@keyframes msg-from-left {
+  from { opacity: 0; transform: translateX(-20px) translateY(6px); }
+  to   { opacity: 1; transform: translateX(0) translateY(0); }
+}
+
+.message.user.message-animate {
+  animation: msg-from-right 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+.message.assistant.message-animate {
+  animation: msg-from-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   opacity: 0;
 }
 
@@ -209,24 +217,81 @@ watch(() => props.messages.length, async () => {
   }
 }
 
+/* Markdown rendering inside assistant bubbles */
+.message.assistant .message-bubble h1,
+.message.assistant .message-bubble h2,
+.message.assistant .message-bubble h3 {
+  font-weight: 700;
+  margin: 10px 0 4px;
+  color: var(--glass-text-primary);
+}
+.message.assistant .message-bubble h2 { font-size: 15px; }
+.message.assistant .message-bubble h3 { font-size: 14px; }
+
+.message.assistant .message-bubble ul,
+.message.assistant .message-bubble ol {
+  padding-left: 18px;
+  margin: 6px 0;
+}
+.message.assistant .message-bubble li {
+  margin: 3px 0;
+}
+.message.assistant .message-bubble strong {
+  font-weight: 700;
+  color: #4A9EFF;
+}
+.message.assistant .message-bubble code {
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: monospace;
+}
+.message.assistant .message-bubble p {
+  margin: 4px 0;
+}
+.message.assistant .message-bubble p:first-child { margin-top: 0; }
+.message.assistant .message-bubble p:last-child { margin-bottom: 0; }
+
 /* Scrollbar styling */
 .chat-container::-webkit-scrollbar {
-  width: 8px;
+  width: 3px;
 }
 
 .chat-container::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(124, 58, 237, 0.04) 30%,
+    rgba(124, 58, 237, 0.04) 70%,
+    transparent 100%
+  );
+  border-radius: 100px;
 }
 
 .chat-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  background: linear-gradient(180deg,
+    rgba(167, 139, 250, 0.9) 0%,
+    rgba(124, 58, 237, 0.8) 40%,
+    rgba(79, 70, 229, 0.7) 100%
+  );
+  border-radius: 100px;
+  box-shadow:
+    0 0 6px rgba(124, 58, 237, 0.8),
+    0 0 12px rgba(124, 58, 237, 0.4),
+    0 0 20px rgba(124, 58, 237, 0.2);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .chat-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(180deg,
+    #c4b5fd 0%,
+    #a78bfa 40%,
+    #7c3aed 100%
+  );
+  box-shadow:
+    0 0 8px rgba(167, 139, 250, 1),
+    0 0 18px rgba(124, 58, 237, 0.7),
+    0 0 30px rgba(124, 58, 237, 0.4);
 }
 
 @media (max-width: 768px) {

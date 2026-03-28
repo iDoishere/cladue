@@ -1,49 +1,44 @@
 #!/usr/bin/env python3
 """
-Index projects data into ChromaDB vector database.
+Index all portfolio data into ChromaDB.
 
-Run this script to populate the vector database with Ido's portfolio projects.
+Run this after any changes to knowledge/ files.
 
 Usage:
-    python3 backend/vector_db/index_data.py
+    cd backend && python3 vector_db/index_data.py
 """
 
 import sys
 import os
 
-# Add backend directory to path so we can import knowledge
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from knowledge.projects import projects_data
-from vector_db.setup import index_projects, get_vector_db
+from knowledge.skills import skills_data
+from knowledge.experience import experience_data
+from vector_db.setup import (
+    index_projects,
+    index_skills,
+    index_experience,
+    get_portfolio_collection,
+)
 
 
 def main():
-    """Index all projects into vector database."""
-    print("🚀 Starting vector database indexing...")
-    print(f"📊 Found {len(projects_data)} projects to index")
+    print("🚀 Indexing all portfolio knowledge into ChromaDB...\n")
 
     try:
-        # Index projects
-        count = index_projects(projects_data)
-        print(f"✅ Successfully indexed {count} projects!")
+        index_projects(projects_data)
+        index_skills(skills_data)
+        index_experience(experience_data)
 
-        # Verify indexing
-        collection = get_vector_db()
-        total_docs = collection.count()
-        print(f"📈 Total documents in vector DB: {total_docs}")
-
-        # Show sample data
-        print("\n📝 Sample indexed projects:")
-        sample = collection.peek(limit=2)
-        if sample and sample['metadatas']:
-            for metadata in sample['metadatas']:
-                print(f"  - {metadata['title']} ({metadata['year']})")
-
-        print("\n✨ Indexing complete! Vector search is ready to use.")
+        collection = get_portfolio_collection()
+        total = collection.count()
+        print(f"\n📈 Total documents in vector DB: {total}")
+        print("✨ Done! All knowledge indexed and ready for semantic search.")
 
     except Exception as e:
-        print(f"❌ Error during indexing: {e}")
+        print(f"❌ Error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

@@ -2,7 +2,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from agent import portfolio_agent
+from services import AgentService
+from agent import create_agent
+
+agent_service = AgentService(create_agent())
 import uuid
 import os
 from dotenv import load_dotenv
@@ -63,26 +66,25 @@ async def chat(request: ChatRequest):
         print(f"{'='*50}\n")
 
         # Get AI response with conversation memory
-        response = portfolio_agent.run(
-            request.message,
-            session_id=session_id
-        )
+        response_text = agent_service.chat(request.message, session_id)
 
         print(f"\n{'='*50}")
-        print(f"Assistant: {response.content}")
+        print(f"Assistant: {response_text}")
         print(f"{'='*50}\n")
 
         return ChatResponse(
-            response=response.content,
+            response=response_text,
             session_id=session_id
         )
 
     except Exception as e:
         print(f"\nError: {str(e)}\n")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error processing chat: {str(e)}"
-        )
+        error = str(e).lower()
+        if "429" in error or "quota" in error or "rate" in error or "exhausted" in error:
+            friendly = "I'm getting too many requests right now. Please try again in a moment."
+        else:
+            friendly = "Something went wrong on my end. Please try again."
+        return ChatResponse(response=friendly, session_id=session_id)
 
 
 @app.get("/api/health")

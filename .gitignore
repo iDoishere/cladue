@@ -44,8 +44,12 @@ build/
 # Database
 backend/storage/*.db
 backend/storage/chroma/
+backend/*.db
 *.sqlite
 *.sqlite3
+
+# Personal docs
+*.pdf
 
 # Logs
 *.log
