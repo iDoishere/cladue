@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { useChat } from './composables/useChat'
-import { useCursorTrail } from './composables/useCursorTrail'
-import AuroraBackground from './components/layout/AuroraBackground.vue'
-import AppHeader from './components/layout/AppHeader.vue'
+import ChatContainer from './components/chat/ChatContainer.vue'
 import HeroSection from './components/hero/HeroSection.vue'
 import ChatInput from './components/input/ChatInput.vue'
-import OnboardingModal from './components/onboarding/OnboardingModal.vue'
-import ChatContainer from './components/chat/ChatContainer.vue'
+import AppHeader from './components/layout/AppHeader.vue'
+import AuroraBackground from './components/layout/AuroraBackground.vue'
 import TabBar from './components/navigation/TabBar.vue'
+import OnboardingModal from './components/onboarding/OnboardingModal.vue'
+import { useChat } from './composables/useChat'
+import { useCursorTrail } from './composables/useCursorTrail'
 
 const { trail, onMouseMove } = useCursorTrail()
 const { activeTab, messages, inputText, showChat, isLoading, handleTabClick, handleSendMessage } = useChat()
 </script>
+
 
 <template>
   <div class="app" @mousemove="onMouseMove">
