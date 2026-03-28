@@ -13,7 +13,7 @@ const { trail, onMouseMove } = useCursorTrail()
 const { activeTab, messages, inputText, showChat, isLoading, handleTabClick, handleSendMessage } = useChat()
 </script>
 
-
+ 
 <template>
   <div class="app" @mousemove="onMouseMove">
     <AuroraBackground :trail="trail" />
