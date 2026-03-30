@@ -1,4 +1,4 @@
-# idoClaude — AI Portfolio Assistant
+# ido — AI Portfolio Assistant
 
 An AI-powered portfolio where recruiters can chat with an intelligent assistant to learn about Ido Cohen's experience, projects, and skills — and send him a message directly through the chat.
 
