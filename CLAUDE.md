@@ -153,12 +153,15 @@ cd backend && source venv/bin/activate && python3 vector_db/index_data.py
 
 ---
 
-## Testing a Change
+## Testing
 
-After any backend change:
+> ⚠️ No pytest suite yet. For medium/large tasks, run smoke tests below before committing.
+
+### Backend smoke tests
 ```bash
-# 1. Verify imports work
 cd backend && source venv/bin/activate
+
+# 1. Verify imports
 python3 -c "from knowledge import projects_data; print('OK')"
 python3 -c "from tools import search_portfolio; print(search_portfolio('Vue skills'))"
 python3 -c "from agent import create_agent; a = create_agent(); print('tools:', [t.name for t in a.tools])"
@@ -166,12 +169,20 @@ python3 -c "from agent import create_agent; a = create_agent(); print('tools:', 
 # 2. Re-index if knowledge data changed
 python3 vector_db/index_data.py
 
-# 3. Start server
-python3 -m uvicorn main:app --reload
-
-# 4. Test endpoints
-curl http://localhost:8000/api/health
-curl -X POST http://localhost:8000/api/chat \
+# 3. Start server and test endpoints
+python3 -m uvicorn main:app --reload &
+sleep 4
+curl -s http://localhost:8000/api/health
+curl -s -X POST http://localhost:8000/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "what are Idos skills?"}'
+kill %1
+```
+
+### Frontend smoke test
+```bash
+cd frontend && npm run dev &
+sleep 6
+curl -s -o /dev/null -w "%{http_code}" http://localhost:5173
+kill %1
 ```
